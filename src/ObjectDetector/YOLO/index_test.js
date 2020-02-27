@@ -5,10 +5,11 @@
 
 
 const YOLO_DEFAULTS = {
-  IOUThreshold: 0.4,
-  classProbThreshold: 0.4,
   filterBoxesThreshold: 0.01,
-  size: 416,
+	IOUThreshold: 0.4,
+	classProbThreshold: 0.4,
+	modelSize: [416, 416],
+	maxOutput: 10,
 };
 
 describe('YOLO', () => {
@@ -48,12 +49,13 @@ describe('YOLO', () => {
       expect(yolo.IOUThreshold).toBe(YOLO_DEFAULTS.IOUThreshold);
       expect(yolo.classProbThreshold).toBe(YOLO_DEFAULTS.classProbThreshold);
       expect(yolo.filterBoxesThreshold).toBe(YOLO_DEFAULTS.filterBoxesThreshold);
-      expect(yolo.size).toBe(YOLO_DEFAULTS.size);
     });
   
     it('detects a robin', async () => {
+
       const robin = await getRobin();
       const detection = await yolo.detect(robin);
+
       expect(detection[0].label).toBe('bird');
     });
   

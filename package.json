@@ -13,7 +13,7 @@
     "start": "webpack-dev-server --open --config webpack.dev.babel.js",
     "manual-test": "webpack-dev-server --open --config webpack.test.babel.js",
     "build": "webpack --config webpack.prod.babel.js",
-    "test": "./node_modules/karma/bin/karma start karma.conf.js",
+    "test": "karma start karma.conf.js",
     "test:single": "./node_modules/karma/bin/karma start karma.conf.js --single-run",
     "test-travis": "./scripts/test-travis.sh",
     "serve:docs": "docsify serve docs",

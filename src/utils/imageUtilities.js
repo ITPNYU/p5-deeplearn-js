@@ -134,6 +134,22 @@ function imgToTensor(input, size = null) {
   });
 }
 
+// Static Method: image to tf tensor
+function imgToTensorYOLO(input, size = null) {
+  return tf.tidy(() => {
+    const image = tf.browser.fromPixels(input);
+    const imageShape = [image.shape[0], image.shape[1]]; // height, width
+    const normalized = image.div(255);
+    let resized = normalized
+    if (size) {
+      if (normalized.shape[0] !== size[0] || normalized.shape[1] !== size[1]) {
+          resized = tf.image.resizeBilinear(normalized, [size[0], size[1]]);
+      }
+    }
+    return [imageShape, resized.expandDims(0)];
+  });
+}
+
 function isInstanceOfSupportedElement(subject) {
   return (subject instanceof HTMLVideoElement
     || subject instanceof HTMLImageElement
@@ -193,5 +209,6 @@ export {
   imgToTensor,
   isInstanceOfSupportedElement,
   flipImage,
-  imgToPixelArray
+  imgToPixelArray,
+  imgToTensorYOLO,
 };
