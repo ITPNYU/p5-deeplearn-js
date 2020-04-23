@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils/p5Utils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils/p5Utils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Copyright (c) 2018 ml5
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
+class P5Util {
+    constructor() {
+        this.p5Instance = window;
+    }
+
+    /**
+     * Set p5 instance globally.
+     * @param {Object} p5Instance 
+     */
+    setP5Instance(p5Instance) {
+        this.p5Instance = p5Instance;
+    }
+
+    /**
+     * This function will check if the p5 is in the environment
+     * Either it is in the p5Instance mode OR it is in the window 
+     * @returns {boolean} if it is in p5 
+     */
+    checkP5() {
+        // typeof this.p5Instance !== 'undefined' &amp;&amp; this.p5Instance.p5 &amp;&amp; this.p5Instance.p5.Image &amp;&amp; typeof this.p5Instance.p5.Image === 'function'
+        if (typeof this.p5Instance !== 'undefined' &amp;&amp;
+            typeof this.p5Instance.loadImage === 'function' || 
+            typeof this.p5Instance.p5 !== 'undefined' &amp;&amp;
+            typeof this.p5Instance.p5.Image !== 'undefined' &amp;&amp;
+            typeof this.p5Instance.p5.Image === 'function') return true;
+        return false
+    }
+
+    /**
+     * Convert a canvas to Blob
+     * @param {HTMLCanvasElement} inputCanvas 
+     * @returns {Blob} blob object
+     */
+    /* eslint class-methods-use-this: ["error", { "exceptMethods": ["getBlob"] }] */
+    getBlob(inputCanvas) {
+        return new Promise((resolve) => {
+            inputCanvas.toBlob((blob) => {
+                resolve(blob);
+            });
+        });
+    };
+
+    /**
+     * Load image in async way.
+     * @param {String} url 
+     */
+    loadAsync(url) {
+        return new Promise((resolve) => {
+            this.p5Instance.loadImage(url, (img) => {
+                resolve(img);
+            });
+        });
+    };
+
+    /**
+     * convert raw bytes to blob object
+     * @param {Array} raws 
+     * @param {number} x 
+     * @param {number} y 
+     * @returns {Blob}
+     */
+    async rawToBlob(raws, x, y) {
+        const arr = Array.from(raws)
+        const canvas = document.createElement('canvas'); // Consider using offScreenCanvas when it is ready?
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = x;
+        canvas.height = y;
+
+        const imgData = ctx.createImageData(x, y);
+        const { data } = imgData;
+
+        for (let i = 0; i &lt; x * y * 4; i += 1 ) data[i] = arr[i];
+        ctx.putImageData(imgData, 0, 0);
+
+        const blob = await this.getBlob(canvas);
+        return blob;
+    };
+
+    /**
+     *  Conver Blob to P5.Image
+     * @param {Blob} blob 
+     * @param {Object} p5Img
+     */
+    async blobToP5Image(blob) {
+        if (this.checkP5()) {
+            const p5Img = await this.loadAsync(URL.createObjectURL(blob));
+            return p5Img;
+        }
+        return null;  
+    };
+
+}
+
+const p5Utils = new P5Util();
+
+export default p5Utils;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BodyPix.html">BodyPix</a></li><li><a href="Cartoon.html">Cartoon</a></li><li><a href="CharRNN.html">CharRNN</a></li><li><a href="CocoSsdBase.html">CocoSsdBase</a></li><li><a href="Cvae.html">Cvae</a></li><li><a href="DCGANBase.html">DCGANBase</a></li><li><a href="FaceApiBase.html">FaceApiBase</a></li><li><a href="ImageClassifier.html">ImageClassifier</a></li><li><a href="KMeans.html">KMeans</a></li><li><a href="KNN.html">KNN</a></li><li><a href="ObjectDetector.html">ObjectDetector</a></li><li><a href="PitchDetection.html">PitchDetection</a></li><li><a href="Pix2pix.html">Pix2pix</a></li><li><a href="PoseNet.html">PoseNet</a></li><li><a href="Sentiment.html">Sentiment</a></li><li><a href="SketchRNN.html">SketchRNN</a></li><li><a href="SoundClassifier.html">SoundClassifier</a></li><li><a href="StyleTransfer.html">StyleTransfer</a></li><li><a href="UNET.html">UNET</a></li><li><a href="Word2Vec.html">Word2Vec</a></li><li><a href="YOLOBase.html">YOLOBase</a></li></ul><h3>Global</h3><ul><li><a href="global.html#featureExtractor">featureExtractor</a></li><li><a href="global.html#loadDataset">loadDataset</a></li><li><a href="global.html#OOV_CHAR">OOV_CHAR</a></li><li><a href="global.html#readCsv">readCsv</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 22 2020 12:18:04 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -27,7 +27,10 @@
     "examples:update-json": "node scripts/update-examples-json.js",
     "examples:watch": "onchange -f 'addDir unlinkDir' './examples' -- npm run examples:update-json",
     "preexamples:build": "rimraf dist_examples",
-    "examples:build": "npm run examples:update-json && webpack --config webpack.prod.babel.js --config-name examples"
+    "examples:build": "npm run examples:update-json && webpack --config webpack.prod.babel.js --config-name examples",
+    "doc": "jsdoc -c jsdoc.conf.json",
+    "documentation": "documentation build src/** -f html -o documentationjs-output",
+    "documentation:index": "documentation build src/index.js -f md -o documentationjs-output/readme.md"
   },
   "repository": {
     "type": "git",
@@ -56,6 +59,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "cz-conventional-changelog": "2.1.0",
     "docsify-cli": "^4.3.0",
+    "documentation": "^12.3.0",
     "eslint": "4.18.2",
     "eslint-config-airbnb-base": "12.1.0",
     "eslint-config-prettier": "^4.1.0",
@@ -65,6 +69,7 @@
     "ghooks": "2.0.2",
     "html-webpack-plugin": "^3.0.7",
     "jasmine-core": "3.1.0",
+    "jsdoc": "^3.6.4",
     "karma": "2.0.0",
     "karma-browserstack-launcher": "^1.5.1",
     "karma-chrome-launcher": "2.2.0",

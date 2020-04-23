@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Word2vec/index.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Word2vec/index.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Copyright (c) 2018 ml5
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
+/*
+Word2Vec
+*/
+
+import * as tf from '@tensorflow/tfjs';
+import callCallback from '../utils/callcallback';
+
+
+class Word2Vec {
+  /**
+   * Create Word2Vec model
+   * @param {String} modelPath - path to pre-trained word vector model in .json e.g data/wordvecs1000.json
+   * @param {function} callback - Optional. A callback function that is called once the model has loaded. If no callback is provided, it will return a promise 
+   *    that will be resolved once the model has loaded.
+   */
+  constructor(modelPath, callback) {
+    this.model = {};
+    this.modelPath = modelPath;
+    this.modelSize = 0;
+    this.modelLoaded = false;
+
+    this.ready = callCallback(this.loadModel(), callback);
+    // TODO: Add support to Promise
+    // this.then = this.ready.then.bind(this.ready);
+  }
+
+  async loadModel() {
+    const json = await fetch(this.modelPath)
+      .then(response => response.json());
+    Object.keys(json.vectors).forEach((word) => {
+      this.model[word] = tf.tensor1d(json.vectors[word]);
+    });
+    this.modelSize = Object.keys(this.model).length;
+    this.modelLoaded = true;
+    return this;
+  }
+
+  dispose(callback) {
+    Object.values(this.model).forEach(x => x.dispose());
+    if (callback) {
+      callback();
+    }
+  }
+
+  async add(inputs, maxOrCb, cb) {
+    const { max, callback } = Word2Vec.parser(maxOrCb, cb, 10);
+
+    await this.ready;
+    return tf.tidy(() => {
+      const sum = Word2Vec.addOrSubtract(this.model, inputs, 'ADD');
+      const result = Word2Vec.nearest(this.model, sum, inputs.length, inputs.length + max);
+      if (callback) {
+        callback(undefined, result);
+      }
+      return result;
+    });
+  }
+
+  async subtract(inputs, maxOrCb, cb) {
+    const { max, callback } = Word2Vec.parser(maxOrCb, cb, 10);
+
+    await this.ready;
+    return tf.tidy(() => {
+      const subtraction = Word2Vec.addOrSubtract(this.model, inputs, 'SUBTRACT');
+      const result = Word2Vec.nearest(this.model, subtraction, inputs.length, inputs.length + max);
+      if (callback) {
+        callback(undefined, result);
+      }
+      return result;
+    });
+  }
+
+  async average(inputs, maxOrCb, cb) {
+    const { max, callback } = Word2Vec.parser(maxOrCb, cb, 10);
+
+    await this.ready;
+    return tf.tidy(() => {
+      const sum = Word2Vec.addOrSubtract(this.model, inputs, 'ADD');
+      const avg = tf.div(sum, tf.tensor(inputs.length));
+      const result = Word2Vec.nearest(this.model, avg, inputs.length, inputs.length + max);
+      if (callback) {
+        callback(undefined, result);
+      }
+      return result;
+    });
+  }
+
+  async nearest(input, maxOrCb, cb) {
+    const { max, callback } = Word2Vec.parser(maxOrCb, cb, 10);
+
+    await this.ready;
+    const vector = this.model[input];
+    let result;
+    if (vector) {
+      result = Word2Vec.nearest(this.model, vector, 1, max + 1);
+    } else {
+      result = null;
+    }
+
+    if (callback) {
+      callback(undefined, result);
+    }
+    return result;
+  }
+
+  async getRandomWord(callback) {
+    await this.ready;
+    const words = Object.keys(this.model);
+    const result = words[Math.floor(Math.random() * words.length)];
+    if (callback) {
+      callback(undefined, result);
+    }
+    return result;
+  }
+
+  static parser(maxOrCallback, cb, defaultMax) {
+    let max = defaultMax;
+    let callback = cb;
+
+    if (typeof maxOrCallback === 'function') {
+      callback = maxOrCallback;
+    } else if (typeof maxOrCallback === 'number') {
+      max = maxOrCallback;
+    }
+    return { max, callback };
+  }
+
+  static addOrSubtract(model, values, operation) {
+    return tf.tidy(() => {
+      const vectors = [];
+      const notFound = [];
+      if (values.length &lt; 2) {
+        throw new Error('Invalid input, must be passed more than 1 value');
+      }
+      values.forEach((value) => {
+        const vector = model[value];
+        if (!vector) {
+          notFound.push(value);
+        } else {
+          vectors.push(vector);
+        }
+      });
+
+      if (notFound.length > 0) {
+        throw new Error(`Invalid input, vector not found for: ${notFound.toString()}`);
+      }
+      let result = vectors[0];
+      if (operation === 'ADD') {
+        for (let i = 1; i &lt; vectors.length; i += 1) {
+          result = tf.add(result, vectors[i]);
+        }
+      } else {
+        for (let i = 1; i &lt; vectors.length; i += 1) {
+          result = tf.sub(result, vectors[i]);
+        }
+      }
+      return result;
+    });
+  }
+
+  static nearest(model, input, start, max) {
+    const nearestVectors = [];
+    Object.keys(model).forEach((word) => {
+      const distance = tf.util.distSquared(input.dataSync(), model[word].dataSync());
+      nearestVectors.push({ word, distance });
+    });
+    nearestVectors.sort((a, b) => a.distance - b.distance);
+    return nearestVectors.slice(start, max);
+  }
+}
+
+const word2vec = (model, cb) => new Word2Vec(model, cb);
+
+export default word2vec;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BodyPix.html">BodyPix</a></li><li><a href="Cartoon.html">Cartoon</a></li><li><a href="CharRNN.html">CharRNN</a></li><li><a href="CocoSsdBase.html">CocoSsdBase</a></li><li><a href="Cvae.html">Cvae</a></li><li><a href="DCGANBase.html">DCGANBase</a></li><li><a href="FaceApiBase.html">FaceApiBase</a></li><li><a href="ImageClassifier.html">ImageClassifier</a></li><li><a href="KMeans.html">KMeans</a></li><li><a href="KNN.html">KNN</a></li><li><a href="ObjectDetector.html">ObjectDetector</a></li><li><a href="PitchDetection.html">PitchDetection</a></li><li><a href="Pix2pix.html">Pix2pix</a></li><li><a href="PoseNet.html">PoseNet</a></li><li><a href="Sentiment.html">Sentiment</a></li><li><a href="SketchRNN.html">SketchRNN</a></li><li><a href="SoundClassifier.html">SoundClassifier</a></li><li><a href="StyleTransfer.html">StyleTransfer</a></li><li><a href="UNET.html">UNET</a></li><li><a href="Word2Vec.html">Word2Vec</a></li><li><a href="YOLOBase.html">YOLOBase</a></li></ul><h3>Global</h3><ul><li><a href="global.html#featureExtractor">featureExtractor</a></li><li><a href="global.html#loadDataset">loadDataset</a></li><li><a href="global.html#OOV_CHAR">OOV_CHAR</a></li><li><a href="global.html#readCsv">readCsv</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 22 2020 12:18:04 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
