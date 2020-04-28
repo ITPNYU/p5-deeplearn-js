@@ -17,12 +17,20 @@ import callCallback from '../utils/callcallback';
 import p5Utils from '../utils/p5Utils';
 import BODYPIX_PALETTE from './BODYPIX_PALETTE';
 
+
 const DEFAULTS = {
-    "multiplier": 0.75,
-    "outputStride": 16,
-    "segmentationThreshold": 0.5,
-    "palette": BODYPIX_PALETTE,
-    "returnTensors": false,
+    multiplier: 0.5, // 1.0, 0.75, or 0.50
+    flipHorizontal: false, // true
+    outputStride: 16, // 8, 16, 32
+    segmentationThreshold: 0.7, // 0 - 1
+    palette: BODYPIX_PALETTE,
+    internalResolution: 'medium', // low, medium, high, full or 0 - 1 
+    quantBytes: 2, // 4, 2, 1
+    nmsRadius: 10, 
+    maxDetections: 10,
+    architecture: 'MobileNetV1', // 'ResNet50'
+    modelUrl: null,
+    returnTensors: false // true
 }
 
 class BodyPix {
@@ -36,12 +44,18 @@ class BodyPix {
         this.video = video;
         this.model = null;
         this.modelReady = false;
-        this.modelPath = ''
         this.config = {
             multiplier: options.multiplier || DEFAULTS.multiplier,
+            flipHorizontal: options.flipHorizontal || DEFAULTS.flipHorizontal,
             outputStride: options.outputStride || DEFAULTS.outputStride,
             segmentationThreshold: options.segmentationThreshold || DEFAULTS.segmentationThreshold,
             palette: options.palette || DEFAULTS.palette,
+            internalResolution: options.internalResolution || DEFAULTS.internalResolution,
+            quantBytes: options.quantBytes || DEFAULTS.quantBytes,
+            nmsRadius: options.nmsRadius || DEFAULTS.nmsRadius,
+            maxDetections: options.maxDetections || DEFAULTS.maxDetections,
+            architecture: options.architecture || DEFAULTS.architecture,
+            modelUrl: options.modelUrl || DEFAULTS.modelUrl,
             returnTensors: options.returnTensors || DEFAULTS.returnTensors
         }
 
@@ -53,7 +67,18 @@ class BodyPix {
      * @return {this} the BodyPix model.
      */
     async loadModel() {
-        this.model = await bp.load(this.config.multiplier);
+        const options = {
+            architecture: this.config.architecture,
+            outputStride: this.config.outputStride,
+            multiplier: this.config.multiplier,
+            quantBytes: this.config.quantBytes
+        };
+        
+        if(this.config.modelUrl !== null){
+            options.modelUrl = this.config.modelUrl;
+        }
+
+        this.model = await bp.load(options);
         this.modelReady = true;
         return this;
     }
@@ -125,10 +150,21 @@ class BodyPix {
         }
 
         this.config.palette = segmentationOptions.palette || this.config.palette;
-        this.config.outputStride = segmentationOptions.outputStride || this.config.outputStride;
+        this.config.flipHorizontal = segmentationOptions.flipHorizontal || this.config.flipHorizontal;
+        this.config.internalResolution = segmentationOptions.internalResolution || this.config.internalResolution;
         this.config.segmentationThreshold = segmentationOptions.segmentationThreshold || this.config.segmentationThreshold;
+        this.config.maxDetections = segmentationOptions.maxDetections || this.config.maxDetections;
+        this.config.scoreThreshold = segmentationOptions.scoreThreshold || this.config.scoreThreshold;
+        this.config.nmsRadius = segmentationOptions.nmsRadius || this.config.nmsRadius;
 
-        const segmentation = await this.model.estimatePartSegmentation(imgToSegment, this.config.outputStride, this.config.segmentationThreshold);
+        const segmentation = await this.model.segmentPersonParts(imgToSegment, {
+            flipHorizontal: this.config.flipHorizontal,
+            internalResolution: this.config.internalResolution,
+            segmentationThreshold: this.config.segmentationThreshold,
+            maxDetections: this.config.maxDetections,
+            scoreThreshold: this.config.scoreThreshold,
+            nmsRadius: this.config.nmsRadius
+        });
 
         const bodyPartsMeta = this.bodyPartsSpec(this.config.palette);
         const colorsArray = Object.keys(bodyPartsMeta).map(part => bodyPartsMeta[part].color)
@@ -285,10 +321,22 @@ class BodyPix {
             });
         }
 
-        this.config.outputStride = segmentationOptions.outputStride || this.config.outputStride;
-        this.config.segmentationThreshold = segmentationOptions.segmentationThreshold || this.config.segmentationThreshold;
+        // this.config.flipHorizontal = segmentationOptions.flipHorizontal || this.config.flipHorizontal;
+        // this.config.internalResolution = segmentationOptions.internalResolution || this.config.internalResolution;
+        // this.config.segmentationThreshold = segmentationOptions.segmentationThreshold || this.config.segmentationThreshold;
+        // this.config.maxDetections = segmentationOptions.maxDetections || this.config.maxDetections;
+        // this.config.scoreThreshold = segmentationOptions.scoreThreshold || this.config.scoreThreshold;
+        // this.config.nmsRadius = segmentationOptions.nmsRadius || this.config.nmsRadius;
 
-        const segmentation = await this.model.estimatePersonSegmentation(imgToSegment, this.config.outputStride, this.config.segmentationThreshold)
+        const segmentation = await this.model.segmentPerson(imgToSegment, {
+            flipHorizontal: this.config.flipHorizontal,
+            internalResolution: this.config.internalResolution,
+            segmentationThreshold: this.config.segmentationThreshold,
+            maxDetections: this.config.maxDetections,
+            scoreThreshold: this.config.scoreThreshold,
+            nmsRadius: this.config.nmsRadius,
+            ...segmentationOptions
+        });
 
         const result = {
             segmentation,
@@ -303,8 +351,9 @@ class BodyPix {
             personMask: null,
             backgroundMask: null,
         };
-        result.raw.backgroundMask = bp.toMaskImageData(segmentation, true);
-        result.raw.personMask = bp.toMaskImageData(segmentation, false);
+        result.raw.personMask = bp.toMask(segmentation, {r: 255, g: 255, b: 255, a: 255}, {r: 0, g: 0, b: 0, a: 255});
+        result.raw.backgroundMask = bp.toMask(segmentation, {r: 255, g: 255, b: 255, a: 255}, {r: 0, g: 0, b: 0, a: 255});
+        
 
         // TODO: consider returning the canvas with the bp.drawMask()
         // const bgMaskCanvas = document.createElement('canvas');
@@ -347,7 +396,7 @@ class BodyPix {
         const personMaskPixels = await tf.browser.toPixels(personMask);
         const bgMaskPixels = await tf.browser.toPixels(backgroundMask);
 
-        // if p5 exists, convert to p5 image
+        // // if p5 exists, convert to p5 image
         if (p5Utils.checkP5()) {
             result.personMask = await this.convertToP5Image(personMaskPixels, segmentation.width, segmentation.height)
             result.backgroundMask = await this.convertToP5Image(bgMaskPixels, segmentation.width, segmentation.height)
@@ -364,7 +413,6 @@ class BodyPix {
             result.tensor.personMask = personMask;
             result.tensor.backgroundMask = backgroundMask;
         }
-
 
         return result;
 
