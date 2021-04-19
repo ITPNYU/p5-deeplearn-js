@@ -91,6 +91,7 @@ const kmeans = ml5.kmeans(data, ?options, ?callback);
 
 **p5.js**
 * [KMeans_imageSegmentation](https://github.com/ml5js/ml5-library/tree/main/examples/p5js/KMeans/KMeans_imageSegmentation/)
+* [KMeans_mouseClustering](https://github.com/ml5js/ml5-library/tree/main/examples/p5js/KMeans/KMeans_mouseClustering)
 
 **p5 web editor**
 * [KMeans_imageSegmentation](https://editor.p5js.org/ml5/sketches/KMeans_imageSegmentation/)
