@@ -127,7 +127,7 @@ class Word2Vec {
     });
 
     // If none of the words in the set are found, also bail out
-    if (!miniModel.length) {
+    if (!Object.keys(miniModel).length) {
       if(callback)  callback(undefined, null);
       return null;
     }
