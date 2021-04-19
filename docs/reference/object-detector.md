@@ -74,8 +74,6 @@ objectDetector.detect(input, ?callback);
 **p5.js**
 * [COCOSSD_Video](https://github.com/ml5js/ml5-library/tree/main/examples/p5js/ObjectDetector/ObjectDetector_COCOSSD_Video)
 * [COCOSSD_single_image](https://github.com/ml5js/ml5-library/tree/main/examples/p5js/ObjectDetector/ObjectDetector_COCOSSD_single_image)
-* [YOLO_single_image](https://github.com/ml5js/ml5-library/tree/main/examples/p5js/ObjectDetector/ObjectDetector_YOLO_single_image)
-* [YOLO_Video](https://github.com/ml5js/ml5-library/tree/main/examples/p5js/ObjectDetector/ObjectDetector_YOLO_single_image)
 
 **p5 web editor**
 
