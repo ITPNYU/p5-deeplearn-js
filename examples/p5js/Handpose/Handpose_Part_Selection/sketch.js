@@ -26,19 +26,18 @@ function modelReady() {
 function draw() {
   image(video, 0, 0, width, height);
 
-  // We can call both functions to draw all keypoints and the skeletons
-  drawKeypoints();
-}
-
-// A function to draw ellipses over the detected keypoints
-function drawKeypoints() {
-  for (let i = 0; i < hands.length; i += 1) {
-    const hand = hands[i];
-    for (let j = 0; j < hand.landmarks.length; j += 1) {
-      const keypoint = hand.landmarks[j];
-      fill(0, 255, 0);
-      noStroke();
-      ellipse(keypoint[0], keypoint[1], 10, 10);
-    }
+  // If there is a hand
+  if (hands.length > 0) {
+    // Individual parts are in "annotations"
+    let thumb = hands[0].annotations.thumb;
+    fill(0, 255, 0);
+    noStroke();
+    // The top of the thumb is index 3
+    ellipse(thumb[3][0], thumb[3][1], 24);
+    let index = hands[0].annotations.indexFinger;
+    fill(0, 0, 255);
+    noStroke();
+    // The top of the index finger is index 3
+    ellipse(index[3][0], index[3][1], 24);
   }
 }
