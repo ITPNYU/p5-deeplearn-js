@@ -90,7 +90,8 @@ sentiment.predict(text);
 
 ## Demo
 
-No demos yet - contribute one today!
+**plain javascript**
+* [Sentiment_Interactive Demo] (http://ml5demo.arifnezami.com/javascript/sentiment/sentiment_interactive/)
 
 ## Tutorials
 
