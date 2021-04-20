@@ -64,7 +64,10 @@ class Facemesh extends EventEmitter {
     const { flipHorizontal } = this.config;
     const predictions = await this.model.estimateFaces(input, flipHorizontal);
     const result = predictions;
+    // Soon, we will remove the 'predict' event and prefer the 'face' event. During
+    // the interim period, we will both events.
     this.emit("predict", result);
+    this.emit("face", result);
 
     if (this.video) {
       return tf.nextFrame().then(() => this.predict());

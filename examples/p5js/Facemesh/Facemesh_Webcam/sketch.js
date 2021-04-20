@@ -11,7 +11,7 @@ function setup() {
 
   // This sets up an event that fills the global variable "predictions"
   // with an array every time new predictions are made
-  facemesh.on("predict", results => {
+  facemesh.on("face", results => {
     predictions = results;
   });
 

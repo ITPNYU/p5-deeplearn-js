@@ -26,8 +26,8 @@ function modelLoaded() {
   console.log('Model Loaded!');
 }
 
-// Listen to new 'predict' events
-facemesh.on('predict', results => {
+// Listen to new 'face' events
+facemesh.on('face', results => {
   predictions = results;
 });
 ```
@@ -135,11 +135,11 @@ const facemesh = ml5.facemesh(?video, ?options, ?callback);
 
 ***
 
-#### .on('predict', ...)
+#### .on('face', ...)
 > An event listener that returns the results when a new face detection prediction occurs.
 
   ```js
-  facemesh.on('predict', callback);
+  facemesh.on('face', callback);
   ```
 
 📥 **Inputs**
@@ -147,7 +147,7 @@ const facemesh = ml5.facemesh(?video, ?options, ?callback);
 * **callback**: REQUIRED.  A callback function to handle new face detection predictions. For example:
 
   ```js
-  facemesh.on('predict', results => {
+  facemesh.on('face', results => {
     // do something with the results
     console.log(results);
   });

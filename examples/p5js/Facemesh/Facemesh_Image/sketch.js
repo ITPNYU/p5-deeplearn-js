@@ -19,7 +19,7 @@ function setup() {
 function imageReady() {
   facemesh = ml5.facemesh(modelReady);
 
-  facemesh.on("predict", results => {
+  facemesh.on("face", results => {
     predictions = results;
   });
 }
