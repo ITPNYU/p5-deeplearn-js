@@ -26,8 +26,8 @@ function modelLoaded() {
   console.log('Model Loaded!');
 }
 
-// Listen to new 'predict' events
-handpose.on('predict', results => {
+// Listen to new 'hand' events
+handpose.on('hand', results => {
   predictions = results;
 });
 ```
@@ -130,11 +130,11 @@ const options = {
 
 ***
 
-#### .on('predict', ...)
+#### .on('hand', ...)
 > An event listener that returns the results when a new hand detection prediction occurs.
 
   ```js
-  handpose.on('predict', callback);
+  handpose.on('hand', callback);
   ```
 
 📥 **Inputs**
@@ -142,7 +142,7 @@ const options = {
 * **callback**: REQUIRED.  A callback function to handle new hand detection predictions. For example:
 
   ```js
-  handpose.on('predict', results => {
+  handpose.on('hand', results => {
     // do something with the results
     console.log(results);
   });

@@ -67,7 +67,10 @@ class Handpose extends EventEmitter {
     const { flipHorizontal } = this.config;
     const predictions = await this.model.estimateHands(input, flipHorizontal);
     const result = predictions;
+    // Soon, we will remove the 'predict' event and prefer the 'hand' event. During
+    // the interim period, we will both events.
     this.emit("predict", result);
+    this.emit("hand", result);
 
     if (this.video) {
       return tf.nextFrame().then(() => this.predict());

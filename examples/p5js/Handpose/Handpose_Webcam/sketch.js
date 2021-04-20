@@ -11,7 +11,7 @@ function setup() {
 
   // This sets up an event that fills the global variable "predictions"
   // with an array every time new hand poses are detected
-  handpose.on("predict", results => {
+  handpose.on("hand", results => {
     predictions = results;
   });
 

@@ -24,7 +24,7 @@ function modelReady() {
   // handpose what to do with the results.
   // in this case we assign the results to our global
   // predictions variable
-  handpose.on("predict", results => {
+  handpose.on("hand", results => {
     predictions = results;
   });
 
