@@ -5,7 +5,7 @@ const TOTAL = 100;
 // Current birds
 const birds = [];
 // Save any birds that die
-const savedBirds = [];
+let savedBirds = [];
 let pipes = [];
 let counter = 0;
 let slider;

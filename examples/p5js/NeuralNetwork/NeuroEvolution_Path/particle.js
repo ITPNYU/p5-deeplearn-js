@@ -10,7 +10,7 @@ class Particle {
     this.velocity = createVector();
     // Fitness and DNA
     this.fitness = 0;
-    // Bird can be created with an existing neural network
+    // Particle can be created with an existing neural network
     if (brain) {
       this.brain = brain;
     } else {
@@ -37,8 +37,9 @@ class Particle {
     this.acceleration.add(force);
   }
 
-  // Run in relation to all the obstacles
-  // If I'm stuck, don't bother updating or checking for intersection
+  // Input to neural network: x,y position
+  // Output from neural network: direction and magnitude for velocity
+  // Exercise prompt: what it output was a steering force!
   think() {
     const inputs = [];
     inputs[0] = this.position.x / width;
@@ -46,10 +47,6 @@ class Particle {
     const outputs = this.brain.predictSync(inputs);
     this.velocity = p5.Vector.fromAngle(outputs[0].value * TWO_PI);
     this.velocity.mult(outputs[1].value * 5);
-
-    // let force = p5.Vector.fromAngle(angle);
-    // force.mult(mag);
-    // this.applyForce(force);
   }
   
 

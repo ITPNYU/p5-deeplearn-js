@@ -34,7 +34,7 @@ function setup() {
   const options = {
     inputs: [IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS],
     task: 'imageClassification',
-    debug: true,
+    debug: 'true',
   };
 
   // construct the neural network
