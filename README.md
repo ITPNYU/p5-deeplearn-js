@@ -10,7 +10,7 @@
 
 ml5.js aims to make machine learning approachable for a broad audience of artists, creative coders, and students. The library provides access to machine learning algorithms and models in the browser, building on top of [TensorFlow.js](https://js.tensorflow.org/).
 
-The library is supported by code examples, tutorials, and sample data sets with an emphasis on ethical computing. Bias in data, stereotypical harms, and responsible crowdsourcing are part of the documentation around data collection and usage.
+The library is supported by code examples, tutorials, and sample data sets with an emphasis on ethical computing. Bias in data, stereotypical harms, and responsible crowdsourcing are part of the documentation around data collection and usage.Also, if you have any doubts you can personally ask any member of your generous community on [Github](https://github.com/ml5js/ml5-library/).
 
 ml5.js is heavily inspired by [Processing](https://processing.org/) and [p5.js](https://p5js.org/).
 
@@ -63,6 +63,14 @@ For example:
 <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js" type="text/javascript"></script>
 ```
 
+Alternatively, you can also download ml5js using `npm` as follows:
+```bash
+npm install ml5
+```
+or 
+```bash
+npm i ml5
+```
 ## Resources
 
 - [Getting Started](https://ml5js.org/getting-started/)
@@ -89,7 +97,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) 🛠
 
 ml5.js is supported by the time and dedication of open source developers from all over the world. Funding and support is generously provided by a [Google Education grant](https://edu.google.com/giving/?modal_active=none) at NYU's ITP/IMA program.
 
-Many thanks [BrowserStack](https://www.browserstack.com/) for providing testing support.
+Many thanks to [BrowserStack](https://www.browserstack.com/) for providing testing support.
 
 ## Contributors
 
