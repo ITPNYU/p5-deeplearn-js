@@ -116,17 +116,56 @@
         repo: 'https://github.com/ml5js/ml5-library',
         loadSidebar: '_sidebar.md',
         alias: {
-          '/.*/sidebar.md': '/./sidebar.md',
+          '/.*/_sidebar.md': '/./_sidebar.md',
         },
         subMaxLevel: 2,
         relativePath: true,
         maxLevel: 2,
         mergeNavbar: true,
         auto2top: true,
+        routerMode: 'history',
         plugins: [
           EditOnGithubPlugin.create(config.editOnGithub.docBase, null, config.editOnGithub.title),
         ],
       };
+
+      window.$docsify.plugins.push((hook, vm) => {
+
+          hook.doneEach(() => {
+            // fixing broken images & broken links
+            var images = document.querySelectorAll('img[src^="_media"]');
+            for (let image of images) {
+              image.src = image.src.replace(/.*\/(?=_)/g, '/');
+            };
+          });
+
+          hook.ready(() => {
+            // In future update of docsify change the crossOriginLinks to vm.config.crossOriginLinks
+            var crossOriginLinks = [
+              "https://ml5js.org",
+              "https://ml5js.github.io/ml5-library/docs/#/reference/index",
+              "https://ml5js.org/community/",
+              "https://ml5js.org/about/",
+              "https://github.com/ml5js/ml5-library",
+              "https://ml5js.github.io/ml5-library/docs/#/",
+            ]
+            // Remove  this code after update.
+            for (let link of crossOriginLinks) {
+              var el = document.querySelector(`a[href="${link}"]`);
+              if (el !== null) {
+                el.addEventListener('click', (el) => {
+                  window.open(link, '_self');
+                });
+              }
+            }
+            // handling redirects
+            vm.route = vm.router.parse();
+            document.body.setAttribute('data-page', vm.route.file);
+            vm._updateRender();
+            vm.$fetch(() => { }, vm.$resetEvents.bind(vm, 'navigate'));
+          });
+
+        });
     </script>
     <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
     <!-- Plugins -->
