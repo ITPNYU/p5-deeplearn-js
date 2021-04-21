@@ -35,6 +35,14 @@ class DiyNeuralNetwork {
         ...options,
       } || DEFAULTS;
 
+    if (typeof this.options.debug === 'string') {
+      if (this.options.debug === 'true') {
+        this.options.debug = true;
+      } else {
+        this.options.debug = false; 
+      }
+    }
+
     this.neuralNetwork = new NeuralNetwork();
     this.neuralNetworkData = new NeuralNetworkData();
     this.neuralNetworkVis = new NeuralNetworkVis();
