@@ -154,7 +154,7 @@ faceapi.detectSingle(optionsOrCallback, configOrCallback, callback);
 
 ## Demo
 
-No demos yet - contribute one today!
+* [FaceApi_Video_Landmarks Demo](https://git.xho.to/faceapi-demo/)
 
 ## Tutorials
 
