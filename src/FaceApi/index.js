@@ -90,7 +90,10 @@ class FaceApiBase {
       "FaceLandmark68TinyNet",
       "FaceRecognitionModel",
     ];
-
+/*
+Get the various keys from the 'Object'
+and iterate over them
+*/
     Object.keys(this.config.MODEL_URLS).forEach(item => {
       if (modelOptions.includes(item)) {
         this.config.MODEL_URLS[item] = this.getModelPath(this.config.MODEL_URLS[item]);
@@ -104,8 +107,8 @@ class FaceApiBase {
       FaceRecognitionModel,
       FaceLandmark68TinyNet,
     } = this.config.MODEL_URLS;
-
-    this.model = faceapi;
+    
+    this.model = faceapi; // Where this refers to the 'Object'
 
 
     if (this.config.withTinyNet === true) {
@@ -408,6 +411,9 @@ class FaceApiBase {
   /**
    * get parts from landmarks
    * @param {*} result
+   * Initialise facial feaures and muscles with an empty array
+   * keep appending when feature found
+   * return total
    */
   landmarkParts(result) {
     let output;
