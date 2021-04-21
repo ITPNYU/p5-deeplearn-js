@@ -955,6 +955,16 @@ class NeuralNetworkData {
 
     return parentCopy;
   }
+  
+  /**
+   * getData
+   * return data object's raw array
+   * to make getting raw data easier
+   */
+  getData() {
+    const rawArray = this.data.raw;
+    return rawArray;
+  }
 }
 
 export default NeuralNetworkData;
