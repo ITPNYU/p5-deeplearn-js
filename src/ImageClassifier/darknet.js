@@ -93,7 +93,8 @@ export class Darknet {
   }
 }
 
-export async function load(version) {
+export async function load(modelConfig) {
+  const { version } = modelConfig
   if (version !== "reference" && version !== "tiny") {
     throw new Error("Please select a version: darknet-reference or darknet-tiny");
   }
